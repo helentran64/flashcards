@@ -42,11 +42,11 @@
       ></v-text-field>
       <v-btn color="primary" class="mt-4" block @click="signup">Sign Up</v-btn>
       <div class="my-4">
-      <p>
-        Already have an account?
-        <RouterLink to="/log-in" class="router-link-item">Log in</RouterLink>
-      </p>
-    </div>
+        <p>
+          Already have an account?
+          <RouterLink to="/log-in" class="router-link-item">Log in</RouterLink>
+        </p>
+      </div>
     </v-card>
   </v-container>
 </template>
@@ -86,7 +86,8 @@ async function signup() {
         if (user.data && user.data.success) {
           userStore.login({
             username: user.data.data.username,
-            fullName: user.data.data.firstName + ' ' + user.data.data.lastName,
+            firstName: user.data.data.firstName,
+            lastName: user.data.data.lastName,
             email: user.data.data.email,
           })
           router.push('/')

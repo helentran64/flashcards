@@ -44,7 +44,12 @@ async function LogUserIn() {
   try {
     const res = await api.get(`/user/get_by_username/${username.value}`)
     if (res.data.data.password === password.value) {
-      userStore.login(res.data.data)
+      userStore.login({
+        username: res.data.data.username,
+        firstName: res.data.data.firstName,
+        lastName: res.data.data.lastName,
+        email: res.data.data.email,
+      })
       router.push('/')
     } else {
       loginError.value = true

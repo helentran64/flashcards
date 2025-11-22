@@ -34,7 +34,7 @@ function signOut() {
             >
             <v-btn color="primary" class="mr-2" v-if="userStore.isLoggedIn" @click="signOut"
               >Sign Out</v-btn
-            >"
+            >
             <v-btn @click="toggleTheme" icon="mdi-lightbulb-on" variant="plain" class="mb-2" />
           </span>
         </div>
