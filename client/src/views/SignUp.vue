@@ -43,4 +43,3 @@ function required(v: string) {
   return !!v || 'Field is required'
 }
 </script>
-<style scoped></style>

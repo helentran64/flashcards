@@ -17,7 +17,7 @@ function toggleTheme() {
             <span class="pl-4 font-weight-bold">myFlashCards</span>
           </RouterLink>
           <span class="navItems">
-            <v-btn color="primary" class="mr-2">Login</v-btn>
+            <v-btn color="primary" class="mr-2" to="/log-in">Login</v-btn>
             <v-btn color="primary" class="mr-2" to="/sign-up">Sign Up</v-btn>
             <v-btn @click="toggleTheme" icon="mdi-lightbulb-on" variant="plain" class="mb-2" />
           </span>
