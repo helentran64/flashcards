@@ -7,12 +7,14 @@
         variant="outlined"
         :rules="[required]"
         density="compact"
+        v-model="firstName"
       ></v-text-field>
       <v-text-field
         label="Last name"
         variant="outlined"
         :rules="[required]"
         density="compact"
+        v-model="lastName"
       ></v-text-field>
       <v-text-field
         label="Email"
@@ -20,12 +22,14 @@
         type="email"
         :rules="[required]"
         density="compact"
+        v-model="email"
       ></v-text-field>
       <v-text-field
         label="Username"
         variant="outlined"
         :rules="[required]"
         density="compact"
+        v-model="username"
       ></v-text-field>
       <v-text-field
         label="Password"
@@ -33,12 +37,51 @@
         type="password"
         :rules="[required]"
         density="compact"
+        v-model="password"
       ></v-text-field>
-      <v-btn color="primary" class="mt-4" block>Sign Up</v-btn>
+      <v-btn color="primary" class="mt-4" block @click="signup">Sign Up</v-btn>
     </v-card>
   </v-container>
 </template>
 <script setup lang="ts">
+import { ref } from 'vue'
+import axios from 'axios'
+
+const firstName = ref('')
+const lastName = ref('')
+const email = ref('')
+const username = ref('')
+const password = ref('')
+const errorMessages = ref('')
+const SERVER_PATH = import.meta.env.VITE_SERVER_PATH
+
+async function signup() {
+  const user = {
+    firstName: firstName.value,
+    lastName: lastName.value,
+    email: email.value,
+    username: username.value,
+    password: password.value,
+  }
+  try {
+    // only create user if username is unique
+    const existingUser = await axios.get(
+      `${SERVER_PATH}/api/user/get_by_username/${username.value}`,
+    )
+    if (existingUser.data && existingUser.data.success) {
+      errorMessages.value = 'Username already exists. Please choose another one.'
+      return
+    } else {
+      const res = await axios.post(`${SERVER_PATH}/api/user/create`, user)
+      if (res.status === 201) {
+        console.log('User created successfully')
+      }
+    }
+  } catch (error) {
+    console.error('Error checking existing user:', error)
+  }
+}
+
 function required(v: string) {
   return !!v || 'Field is required'
 }
