@@ -71,7 +71,7 @@ const getUserByUsername = async (req: Request, res: Response) => {
     if (data[0].length === 0) {
       return res.status(200).json({ success: false, message: "User not found" });
     }
-    return res.status(200).json({ success: true, message: "User found", data: data[0] });
+    return res.status(200).json({ success: true, message: "User found", data: data[0][0] });
   } catch (error) {
     console.error("Error fetching user by username:", error);
   return res.status(500).json({ success: false, message: "Internal Server Error", error });
