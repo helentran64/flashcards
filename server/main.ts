@@ -9,10 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 // routes
-
-app.get("/test", (req, res) => {
-  res.send("Hello World from Express.js!");
-});
+app.use('/api/user', require('./routes/userRouter.ts'));
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,5 +18,5 @@ mysqlPool.query("SELECT 1").then(() => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
