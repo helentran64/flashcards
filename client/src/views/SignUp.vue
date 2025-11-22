@@ -45,15 +45,18 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
+import api from '@/api'
 
+const userStore = useUserStore()
+const router = useRouter()
 const firstName = ref('')
 const lastName = ref('')
 const email = ref('')
 const username = ref('')
 const password = ref('')
 const errorMessages = ref('')
-const SERVER_PATH = import.meta.env.VITE_SERVER_PATH
 
 async function signup() {
   const user = {
@@ -65,16 +68,23 @@ async function signup() {
   }
   try {
     // only create user if username is unique
-    const existingUser = await axios.get(
-      `${SERVER_PATH}/api/user/get_by_username/${username.value}`,
-    )
+    const existingUser = await api.get(`/user/get_by_username/${username.value}`)
+    console.log('existingUser', existingUser)
     if (existingUser.data && existingUser.data.success) {
       errorMessages.value = 'Username already exists. Please choose another one.'
       return
     } else {
-      const res = await axios.post(`${SERVER_PATH}/api/user/create`, user)
-      if (res.status === 201) {
-        console.log('User created successfully')
+      const res = await api.post(`/user/create`, user)
+      if (res.data && res.data.success) {
+        const user = await api.get(`/user/get_by_username/${username.value}`)
+        if (user.data && user.data.success) {
+          userStore.login({
+            username: user.data.data.username,
+            fullName: user.data.data.firstName + ' ' + user.data.data.lastName,
+            email: user.data.data.email,
+          })
+          router.push('/')
+        }
       }
     }
   } catch (error) {
