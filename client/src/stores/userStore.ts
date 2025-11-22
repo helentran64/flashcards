@@ -1,27 +1,28 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 
-export const useUserStore = defineStore(
-  'user',
-  () => {
-    const isLoggedIn = ref(false)
-    const isLoggedOut = ref(true)
-    const user = ref<null | { username: string; fullName: string; email: string }>(null)
+type User = {
+  username: string
+  fullName: string
+  email: string
+}
 
-    function login(userData: { username: string; fullName: string; email: string }) {
-      isLoggedIn.value = true
-      isLoggedOut.value = false
-      user.value = userData as { username: string; fullName: string; email: string }
-    }
+export const useUserStore = defineStore('user', () => {
+  const user = useLocalStorage<User | null>('user', null)
+  const isLoggedIn = useLocalStorage<boolean>('isLoggedIn', false)
+  const isLoggedOut = useLocalStorage<boolean>('isLoggedOut', true)
 
-    function logout() {
-      isLoggedIn.value = false
-      isLoggedOut.value = true
-      user.value = null
-    }
+  function login(userData: User) {
+    isLoggedIn.value = true
+    isLoggedOut.value = false
+    user.value = userData
+  }
 
-    return { isLoggedIn, isLoggedOut, user, login, logout }
-  },
-  // @ts-expect-error for pinia persist plugin
-  { persist: true },
-)
+  function logout() {
+    isLoggedIn.value = false
+    isLoggedOut.value = true
+    user.value = null
+  }
+
+  return { isLoggedIn, isLoggedOut, user, login, logout }
+})

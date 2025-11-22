@@ -2,6 +2,7 @@
   <v-container>
     <v-card class="px-6 py-8 text-center mx-auto rounded" max-width="400">
       <h2 class="font-weight-bold mb-6">Create an Account</h2>
+      <span class="text-red text-center">{{ errorMessages }}</span>
       <v-text-field
         label="First name"
         variant="outlined"
@@ -40,6 +41,12 @@
         v-model="password"
       ></v-text-field>
       <v-btn color="primary" class="mt-4" block @click="signup">Sign Up</v-btn>
+      <div class="my-4">
+      <p>
+        Already have an account?
+        <RouterLink to="/log-in" class="router-link-item">Log in</RouterLink>
+      </p>
+    </div>
     </v-card>
   </v-container>
 </template>
@@ -69,7 +76,6 @@ async function signup() {
   try {
     // only create user if username is unique
     const existingUser = await api.get(`/user/get_by_username/${username.value}`)
-    console.log('existingUser', existingUser)
     if (existingUser.data && existingUser.data.success) {
       errorMessages.value = 'Username already exists. Please choose another one.'
       return
