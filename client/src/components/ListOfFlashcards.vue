@@ -1,30 +1,31 @@
 <template>
   <v-container>
-    <div class="my-8 d-flex flex-wrap">
-      <v-card
-        variant="tonal"
-        color="primary"
-        width="300px"
-        height="150px"
-        class="mx-2 my-2"
-        @click="showAddDeckModal = true"
-      >
-        <v-card-item prepend-icon="mdi-plus">Click here to add deck</v-card-item>
-      </v-card>
-      <v-card
-        v-for="deck in decks"
-        :key="deck.deckId"
-        width="300px"
-        height="150px"
-        class="mx-2 my-2"
-      >
-        <v-card-title class="font-weight-bold">{{ deck.title }}</v-card-title>
-        <v-card-subtitle
-          >Created on: {{ new Date(deck.creation).toLocaleDateString() }}</v-card-subtitle
+    <v-row class="my-8">
+      <v-col cols="12" sm="6" md="4" lg="3">
+        <v-card
+          variant="tonal"
+          color="primary"
+          height="150px"
+          class="d-flex align-center justify-center"
+          @click="showAddDeckModal = true"
         >
-        <v-card-text>Privacy: {{ deck.privacy ? 'Public' : 'Private' }}</v-card-text>
-      </v-card>
-    </div>
+          <v-card-item
+            ><span><v-icon icon="mdi-plus" class="mr-2"></v-icon></span>Click here to add
+            deck</v-card-item
+          >
+        </v-card>
+      </v-col>
+
+      <v-col v-for="deck in decks" :key="deck.deckId" cols="12" sm="6" md="4" lg="3">
+        <v-card height="150px">
+          <v-card-title class="font-weight-bold">{{ deck.title }}</v-card-title>
+          <v-card-subtitle>
+            Created on: {{ new Date(deck.creation).toLocaleDateString() }}
+          </v-card-subtitle>
+          <v-card-text>{{ deck.privacy ? 'Public' : 'Private' }}</v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
     <!-- Add Deck Modal -->
     <v-dialog v-model="showAddDeckModal" persistent max-width="700px">
       <v-card>
