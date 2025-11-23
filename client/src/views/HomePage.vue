@@ -8,7 +8,7 @@
   </div>
   <div v-if="userStore.isLoggedIn">
     <v-container>
-      <p class="font-weight-bold text-h2">Hello, {{ userStore.user?.firstName }}</p>
+      <p class="font-weight-bold text-h2">Hello, {{ capitalizedFirstName() }}</p>
       <ListofCards />
     </v-container>
   </div>
@@ -17,6 +17,11 @@
 import { useUserStore } from '@/stores/userStore'
 import ListofCards from '@/components/ListOfFlashcards.vue'
 const userStore = useUserStore()
+
+function capitalizedFirstName() {
+  const name = userStore.user?.firstName
+  return name ? name.charAt(0).toUpperCase() + name.slice(1).toLowerCase() : ''
+}
 </script>
 <style scoped>
 .homepageNotSignedIn {
