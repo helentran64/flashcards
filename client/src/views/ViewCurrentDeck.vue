@@ -11,7 +11,7 @@
       <FlashCardView :flashcards="flashcards" />
     </div>
     <div v-show="!startedStudying">
-      <v-sheet v-for="flashcard in flashcards" :key="flashcard.flashcardId" class="my-4">
+      <v-sheet v-for="flashcard in flashcards" :key="flashcard.flashcardId" class="my-4" elevation="2">
         <v-container>
           <v-text-field
             label="term"
@@ -32,7 +32,7 @@
         </v-container>
       </v-sheet>
       <!-- Default box to add new card -->
-      <v-sheet>
+      <v-sheet elevation="2">
         <v-container>
           <v-text-field label="term" density="compact" variant="outlined" v-model="newTerm" />
           <v-textarea label="definition" density="compact" variant="outlined" v-model="newDef" />
