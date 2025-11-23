@@ -110,4 +110,32 @@ const deleteDeckById = async (req: Request, res: Response) => {
   }
 };
 
-export { createDeck, getDeckByUsername, deleteDeckById };
+/*
+ * Updates a deck by deckId in the database.
+ */
+const updateDeckById = async (req: Request, res: Response) => {
+  const deckId = req.params.deckId;
+  const { title, isPrivate } = req.body;
+  try {
+    const data = await db.query(
+      "UPDATE deck SET title = ?, privacy = ? WHERE deckId = ?",
+      [title, isPrivate, deckId]
+    );
+    if (data[0].affectedRows === 0) {
+      return res.json({
+        success: false,
+        message: "Deck not found or no changes made",
+      });
+    }
+    return res.json({ success: true, message: "Deck updated successfully" });
+  } catch (error) {
+    console.error("Error updating deck by ID:", error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
+export { createDeck, getDeckByUsername, deleteDeckById, updateDeckById };

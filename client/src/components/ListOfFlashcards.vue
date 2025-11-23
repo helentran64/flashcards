@@ -7,7 +7,7 @@
           color="primary"
           height="180px"
           class="d-flex align-center justify-center"
-          @click="showAddDeckModal = true"
+          @click="openCreateModal"
         >
           <v-card-item
             ><span><v-icon icon="mdi-plus" class="mr-2"></v-icon></span>Click here to add
@@ -22,22 +22,19 @@
           <v-card-subtitle>
             Created on: {{ new Date(deck.creation).toLocaleDateString() }}
           </v-card-subtitle>
-          <v-card-text>{{ deck.privacy ? 'Public' : 'Private' }}</v-card-text>
+          <v-card-text>{{ deck.privacy ? 'Private' : 'Public' }}</v-card-text>
           <v-card-actions>
-            <v-spacer/>
-            <v-btn
-              icon="mdi-trash-can-outline"
-              color="red"
-              @click="deleteDeck(deck.deckId)"
-            />
+            <v-btn icon="mdi-trash-can-outline" color="red" @click="deleteDeck(deck.deckId)" />
+            <v-btn icon="mdi-pencil" color="cyan" @click="openEditModal(deck)"/>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
-    <!-- Add Deck Modal -->
-    <v-dialog v-model="showAddDeckModal" persistent max-width="700px">
+    
+    <!-- Deck Modal (Create/Edit) -->
+    <v-dialog v-model="showDeckModal" persistent max-width="700px">
       <v-card>
-        <v-card-title>Create a new deck</v-card-title>
+        <v-card-title>{{ isEditMode ? 'Edit Deck' : 'Create a new deck' }}</v-card-title>
         <v-card-text>
           <v-text-field
             label="Deck Title"
@@ -50,12 +47,15 @@
         <v-card-actions>
           <v-spacer />
           <v-btn variant="tonal" color="red" @click="onCancel">Cancel</v-btn>
-          <v-btn variant="tonal" color="primary" @click="createDeck">Create Deck</v-btn>
+          <v-btn variant="tonal" color="primary" @click="saveDeck">
+            {{ isEditMode ? 'Update' : 'Create' }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </v-container>
 </template>
+
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
@@ -71,7 +71,9 @@ type Deck = {
 
 const userStore = useUserStore()
 const decks = ref<Array<Deck>>([])
-const showAddDeckModal = ref<boolean>(false)
+const showDeckModal = ref<boolean>(false)
+const isEditMode = ref<boolean>(false)
+const currentDeckId = ref<number | null>(null)
 
 const deckTitle = ref<string>('')
 const isPrivate = ref<boolean>(true)
@@ -94,11 +96,34 @@ onMounted(() => {
 function resetForm() {
   deckTitle.value = ''
   isPrivate.value = true
+  currentDeckId.value = null
+  isEditMode.value = false
+}
+
+function openCreateModal() {
+  resetForm()
+  showDeckModal.value = true
+}
+
+function openEditModal(deck: Deck) {
+  isEditMode.value = true
+  currentDeckId.value = deck.deckId
+  deckTitle.value = deck.title
+  isPrivate.value = deck.privacy
+  showDeckModal.value = true
 }
 
 function onCancel() {
   resetForm()
-  showAddDeckModal.value = false
+  showDeckModal.value = false
+}
+
+async function saveDeck() {
+  if (isEditMode.value) {
+    await updateDeck()
+  } else {
+    await createDeck()
+  }
 }
 
 async function createDeck() {
@@ -109,8 +134,7 @@ async function createDeck() {
       username: userStore.user?.username,
     })
     if (res.data && res.data.success) {
-      // Close modal, reset form and reload decks
-      showAddDeckModal.value = false
+      showDeckModal.value = false
       resetForm()
       await loadDecks()
     }
@@ -119,11 +143,26 @@ async function createDeck() {
   }
 }
 
+async function updateDeck() {
+  try {
+    const res = await api.put(`/deck/update/${currentDeckId.value}`, {
+      title: deckTitle.value,
+      isPrivate: isPrivate.value,
+    })
+    if (res.data && res.data.success) {
+      showDeckModal.value = false
+      resetForm()
+      await loadDecks()
+    }
+  } catch (error) {
+    console.error('Error updating deck:', error)
+  }
+}
+
 async function deleteDeck(deckId: number) {
   try {
     const res = await api.delete(`/deck/delete/${deckId}`)
     if (res.data && res.data.success) {
-      // Reload decks after deletion
       await loadDecks()
     }
   } catch (error) {
@@ -131,4 +170,5 @@ async function deleteDeck(deckId: number) {
   }
 }
 </script>
+
 <style scoped></style>
