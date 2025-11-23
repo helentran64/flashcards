@@ -86,6 +86,35 @@ const getDeckByUsername = async (req: Request, res: Response) => {
   }
 };
 
+/* 
+* Gets the title of a deck by deckId from the database.
+*/
+const getTitleByDeckId = async (req: Request, res: Response) => {
+  const deckId = req.params.deckId;
+  try {
+    const data = await db.query("SELECT title FROM deck WHERE deckId = ?", [
+      deckId,
+    ]);
+    if (data[0].length === 0) {
+      return res.json({ success: false, message: "Deck not found" });
+    }
+    return res.json({
+      success: true,
+      message: "Deck title found",
+      data: {
+        title: data[0][0].title,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching deck title by ID:", error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
 /*
  * Deletes a deck by deckid from the database.
  */
@@ -138,4 +167,4 @@ const updateDeckById = async (req: Request, res: Response) => {
   }
 };
 
-export { createDeck, getDeckByUsername, deleteDeckById, updateDeckById };
+export { createDeck, getDeckByUsername, deleteDeckById, updateDeckById, getTitleByDeckId };

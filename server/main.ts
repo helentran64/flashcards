@@ -11,6 +11,7 @@ app.use(cors());
 // routes
 app.use('/api/user', require('./routes/userRouter.ts'));
 app.use('/api/deck', require('./routes/deckRouter.ts'));
+app.use('/api/flashcard', require('./routes/flashcardRouter.ts'));
 
 const PORT = process.env.PORT || 3000;
 
