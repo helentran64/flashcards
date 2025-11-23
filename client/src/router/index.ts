@@ -19,6 +19,11 @@ const router = createRouter({
       name: 'login',
       component: () => import('@/views/LogIn.vue'),
     },
+    {
+      path: '/deck/:deckId',
+      name: 'view-deck',
+      component: () => import('@/views/ViewCurrentDeck.vue'),
+    }
   ],
 })
 

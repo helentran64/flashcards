@@ -15,7 +15,7 @@
 </template>
 <script lang="ts" setup>
 import { useUserStore } from '@/stores/userStore'
-import ListofCards from '@/components/ListOfFlashcards.vue'
+import ListofCards from '@/components/ListOfDecks.vue'
 const userStore = useUserStore()
 
 function capitalizedFirstName() {

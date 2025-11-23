@@ -18,19 +18,21 @@
 
       <v-col v-for="deck in decks" :key="deck.deckId" cols="12" sm="6" md="4" lg="3">
         <v-card height="180px">
-          <v-card-title class="font-weight-bold">{{ deck.title }}</v-card-title>
-          <v-card-subtitle>
-            Created on: {{ new Date(deck.creation).toLocaleDateString() }}
-          </v-card-subtitle>
-          <v-card-text>{{ deck.privacy ? 'Private' : 'Public' }}</v-card-text>
+          <router-link :to="`/deck/${deck.deckId}`" style="text-decoration: none; color: inherit">
+            <v-card-title class="font-weight-bold">{{ deck.title }}</v-card-title>
+            <v-card-subtitle>
+              Created on: {{ new Date(deck.creation).toLocaleDateString() }}
+            </v-card-subtitle>
+            <v-card-text>{{ deck.privacy ? 'Private' : 'Public' }}</v-card-text>
+          </router-link>
           <v-card-actions>
-            <v-btn icon="mdi-trash-can-outline" color="red" @click="deleteDeck(deck.deckId)" />
-            <v-btn icon="mdi-pencil" color="cyan" @click="openEditModal(deck)"/>
+            <v-btn icon="mdi-trash-can-outline" @click="deleteDeck(deck.deckId)" />
+            <v-btn icon="mdi-pencil-outline" @click="openEditModal(deck)" />
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
-    
+
     <!-- Deck Modal (Create/Edit) -->
     <v-dialog v-model="showDeckModal" persistent max-width="700px">
       <v-card>
@@ -163,6 +165,7 @@ async function deleteDeck(deckId: number) {
   try {
     const res = await api.delete(`/deck/delete/${deckId}`)
     if (res.data && res.data.success) {
+      decks.value = decks.value.filter((deck) => deck.deckId !== deckId)
       await loadDecks()
     }
   } catch (error) {
