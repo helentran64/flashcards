@@ -9,7 +9,7 @@
         :rules="[required]"
         density="compact"
         v-model="username"
-      ></v-text-field>
+      />
       <v-text-field
         label="Password"
         variant="outlined"
@@ -17,7 +17,7 @@
         :rules="[required]"
         density="compact"
         v-model="password"
-      ></v-text-field>
+      />
       <v-btn color="primary" class="mt-4" block @click="LogUserIn">Login</v-btn>
       <div class="my-4">
         <p>

@@ -10,6 +10,7 @@ app.use(cors());
 
 // routes
 app.use('/api/user', require('./routes/userRouter.ts'));
+app.use('/api/deck', require('./routes/deckRouter.ts'));
 
 const PORT = process.env.PORT || 3000;
 
