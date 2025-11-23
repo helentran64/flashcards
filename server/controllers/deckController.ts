@@ -86,4 +86,28 @@ const getDeckByUsername = async (req: Request, res: Response) => {
   }
 };
 
-export { createDeck, getDeckByUsername };
+/*
+ * Deletes a deck by deckid from the database.
+ */
+const deleteDeckById = async (req: Request, res: Response) => {
+  const deckId = req.params.deck_id;
+  try {
+    const data = await db.query("DELETE FROM deck WHERE deckId = ?", [deckId]);
+    if (data[0].affectedRows === 0) {
+      return res.json({
+        success: false,
+        message: "Deck not found or already deleted",
+      });
+    }
+    return res.json({ success: true, message: "Deck deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting deck by ID:", error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
+export { createDeck, getDeckByUsername, deleteDeckById };

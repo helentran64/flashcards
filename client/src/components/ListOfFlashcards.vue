@@ -5,7 +5,7 @@
         <v-card
           variant="tonal"
           color="primary"
-          height="150px"
+          height="180px"
           class="d-flex align-center justify-center"
           @click="showAddDeckModal = true"
         >
@@ -17,12 +17,20 @@
       </v-col>
 
       <v-col v-for="deck in decks" :key="deck.deckId" cols="12" sm="6" md="4" lg="3">
-        <v-card height="150px">
+        <v-card height="180px">
           <v-card-title class="font-weight-bold">{{ deck.title }}</v-card-title>
           <v-card-subtitle>
             Created on: {{ new Date(deck.creation).toLocaleDateString() }}
           </v-card-subtitle>
           <v-card-text>{{ deck.privacy ? 'Public' : 'Private' }}</v-card-text>
+          <v-card-actions>
+            <v-spacer/>
+            <v-btn
+              icon="mdi-trash-can-outline"
+              color="red"
+              @click="deleteDeck(deck.deckId)"
+            />
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
@@ -108,6 +116,18 @@ async function createDeck() {
     }
   } catch (error) {
     console.error('Error creating deck:', error)
+  }
+}
+
+async function deleteDeck(deckId: number) {
+  try {
+    const res = await api.delete(`/deck/delete/${deckId}`)
+    if (res.data && res.data.success) {
+      // Reload decks after deletion
+      await loadDecks()
+    }
+  } catch (error) {
+    console.error('Error deleting deck:', error)
   }
 }
 </script>
