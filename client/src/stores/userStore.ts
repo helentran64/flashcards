@@ -1,21 +1,43 @@
 import { defineStore } from 'pinia'
-import { useLocalStorage } from '@vueuse/core'
+import { ref, watch } from 'vue'
 
 type User = {
   username: string
-  fullName: string
+  firstName: string
+  lastName: string
   email: string
 }
 
 export const useUserStore = defineStore('user', () => {
-  const user = useLocalStorage<User | null>('user', null)
-  const isLoggedIn = useLocalStorage<boolean>('isLoggedIn', false)
-  const isLoggedOut = useLocalStorage<boolean>('isLoggedOut', true)
+  // Load from localStorage on initialization
+  const savedUser = localStorage.getItem('user')
+  const savedIsLoggedIn = localStorage.getItem('isLoggedIn')
+
+  const user = ref<User | null>(savedUser ? JSON.parse(savedUser) : null)
+  const isLoggedIn = ref(savedIsLoggedIn === 'true')
+  const isLoggedOut = ref(savedIsLoggedIn !== 'true')
+
+  // Watch and save to localStorage whenever user changes
+  watch(
+    user,
+    (newUser) => {
+      if (newUser) {
+        localStorage.setItem('user', JSON.stringify(newUser))
+      } else {
+        localStorage.removeItem('user')
+      }
+    },
+    { deep: true },
+  )
+
+  watch(isLoggedIn, (value) => {
+    localStorage.setItem('isLoggedIn', String(value))
+  })
 
   function login(userData: User) {
     isLoggedIn.value = true
     isLoggedOut.value = false
-    user.value = userData
+    user.value = { ...userData }
   }
 
   function logout() {
