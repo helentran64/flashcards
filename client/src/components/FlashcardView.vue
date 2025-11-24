@@ -1,9 +1,11 @@
 <template>
   <v-container>
-    <v-window v-model="onboarding" show-arrows="hover">
+    <v-window v-model="onboarding" show-arrows>
       <v-window-item v-for="(flashcard, i) in flashcards" :key="flashcard.flashcardId" :value="i">
+        <div class="text-center">{{ i + 1 }} / {{ flashcards.length }}</div>
+        <v-progress-linear color="primary" :model-value="((i+1)/flashcards.length) * 100"></v-progress-linear>
         <v-card
-          class="d-flex align-center justify-center ma-2"
+          class="d-flex align-center justify-center"
           elevation="2"
           height="400"
           @click="toggleCard"
