@@ -26,7 +26,7 @@
             <v-card-text>{{ deck.privacy ? 'Private' : 'Public' }}</v-card-text>
           </router-link>
           <v-card-actions>
-            <v-btn icon="mdi-trash-can-outline" @click="deleteDeck(deck.deckId)" />
+            <v-btn icon="mdi-trash-can-outline" @click="openDeleteModal(deck.deckId)" />
             <v-btn icon="mdi-pencil-outline" @click="openEditModal(deck)" />
           </v-card-actions>
         </v-card>
@@ -55,6 +55,13 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Delete Confirmation Modal -->
+    <DeleteModal
+      :isOpen="showDeleteModal"
+      @close="showDeleteModal = false"
+      @confirm="confirmDelete"
+    />
   </v-container>
 </template>
 
@@ -62,14 +69,8 @@
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import api from '@/api'
-
-type Deck = {
-  deckId: number
-  title: string
-  privacy: boolean
-  username: string
-  creation: Date
-}
+import type { Deck } from '@/types/types'
+import DeleteModal from '@/components/Modals/DeleteModal.vue'
 
 const userStore = useUserStore()
 const decks = ref<Array<Deck>>([])
@@ -79,6 +80,10 @@ const currentDeckId = ref<number | null>(null)
 
 const deckTitle = ref<string>('')
 const isPrivate = ref<boolean>(true)
+
+// Delete modal state
+const showDeleteModal = ref<boolean>(false)
+const deckToDelete = ref<number | null>(null)
 
 async function loadDecks() {
   try {
@@ -161,12 +166,19 @@ async function updateDeck() {
   }
 }
 
-async function deleteDeck(deckId: number) {
+function openDeleteModal(deckId: number) {
+  deckToDelete.value = deckId
+  showDeleteModal.value = true
+}
+
+async function confirmDelete() {
+  if (deckToDelete.value === null) return
+
   try {
-    const res = await api.delete(`/deck/delete/${deckId}`)
+    const res = await api.delete(`/deck/delete/${deckToDelete.value}`)
     if (res.data && res.data.success) {
-      decks.value = decks.value.filter((deck) => deck.deckId !== deckId)
-      await loadDecks()
+      decks.value = decks.value.filter((deck) => deck.deckId !== deckToDelete.value)
+      deckToDelete.value = null
     }
   } catch (error) {
     console.error('Error deleting deck:', error)
