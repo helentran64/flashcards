@@ -1,17 +1,32 @@
 <template>
   <v-container>
     <p class="font-weight-bold text-h3 my-4">{{ deckTitle }}</p>
-    <v-btn color="green" v-if="!startedStudying" @click="toggleStudying" class="mb-4" prepend-icon="mdi-play"
+    <v-btn
+      color="green"
+      v-if="!startedStudying"
+      @click="toggleStudying"
+      class="mb-4"
+      prepend-icon="mdi-play"
       >Start Studying</v-btn
     >
-    <v-btn color="red" v-if="startedStudying" @click="toggleStudying" class="mb-4" prepend-icon="mdi-stop"
+    <v-btn
+      color="red"
+      v-if="startedStudying"
+      @click="toggleStudying"
+      class="mb-4"
+      prepend-icon="mdi-stop"
       >End Session</v-btn
     >
     <div v-show="startedStudying">
       <FlashCardView :flashcards="flashcards" />
     </div>
     <div v-show="!startedStudying">
-      <v-sheet v-for="flashcard in flashcards" :key="flashcard.flashcardId" class="my-4" elevation="2">
+      <v-sheet
+        v-for="flashcard in flashcards"
+        :key="flashcard.flashcardId"
+        class="my-4"
+        elevation="2"
+      >
         <v-container>
           <v-text-field
             label="term"
@@ -28,7 +43,12 @@
             readonly
           />
           <v-btn icon="mdi-pencil-outline" @click="openEditModal(flashcard)" />
-          <v-btn icon="mdi-trash-can-outline" @click="deleteFlashcard(flashcard.flashcardId)" />
+          <v-btn icon="mdi-trash-can-outline" @click="openDeleteModal(flashcard.flashcardId)" />
+          <DeleteModal
+            :isOpen="showDeleteModal"
+            @close="showDeleteModal = false"
+            @confirm="deleteFlashcard()"
+          />
         </v-container>
       </v-sheet>
       <!-- Default box to add new card -->
@@ -75,6 +95,7 @@ import { useUserStore } from '@/stores/userStore'
 import api from '@/api'
 import FlashCardView from '@/components/FlashcardView.vue'
 import type { Flashcard } from '@/types/types'
+import DeleteModal from '@/components/Modals/DeleteModal.vue'
 
 const deckTitle = ref<string>('')
 const deckId = ref<number | null>(null)
@@ -89,6 +110,10 @@ const editDialog = ref<boolean>(false)
 const editFlashcardId = ref<number | null>(null)
 const editTerm = ref<string>('')
 const editDefinition = ref<string>('')
+
+// Delete modal state
+const showDeleteModal = ref<boolean>(false)
+const flashcardIdToDelete = ref<number | null>(null)
 
 const route = useRoute()
 
@@ -190,12 +215,18 @@ async function saveFlashcard() {
   }
 }
 
-async function deleteFlashcard(flashcardId: number) {
+function openDeleteModal(flashcardId: number) {
+  showDeleteModal.value = true
+  flashcardIdToDelete.value = flashcardId
+}
+
+async function deleteFlashcard() {
+  if (flashcardIdToDelete.value === null) return
   try {
-    const response = await api.delete(`/flashcard/delete/${flashcardId}`)
+    const response = await api.delete(`/flashcard/delete/${flashcardIdToDelete.value}`)
     if (response.data && response.data.success) {
       flashcards.value = flashcards.value.filter(
-        (flashcard) => flashcard.flashcardId !== flashcardId,
+        (flashcard) => flashcard.flashcardId !== flashcardIdToDelete.value,
       )
       await getFlashcards()
     } else {

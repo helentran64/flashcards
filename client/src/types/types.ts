@@ -5,3 +5,11 @@ export type Flashcard = {
   deckId: number
   image?: string
 }
+
+export type Deck = {
+  deckId: number
+  title: string
+  privacy: boolean
+  username: string
+  creation: Date
+}
