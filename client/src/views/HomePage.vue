@@ -8,15 +8,36 @@
   </div>
   <div v-if="userStore.isLoggedIn">
     <v-container>
-      <p class="font-weight-bold text-h2">Hello, {{ capitalizedFirstName() }}</p>
-      <ListofCards />
+      <p class="font-weight-bold text-h2">Welcome, {{ capitalizedFirstName() }}</p>
+      <v-tabs
+        v-model="tab"
+        :items="tabs"
+        color="white"
+        height="60"
+        slider-color="#f78166"
+        class="my-4"
+      >
+        <template v-slot:tab="{ item }">
+          <v-tab :prepend-icon="item.icon" :text="item.text" :value="item.value" />
+        </template>
+        <template v-slot:item="{ item }">
+          <v-tabs-window-item :value="item.value" class="pa-4">
+            <ListofCards v-if="item.value === 'tab-1'" />
+          </v-tabs-window-item>
+        </template>
+      </v-tabs>
     </v-container>
   </div>
 </template>
 <script lang="ts" setup>
 import { useUserStore } from '@/stores/userStore'
 import ListofCards from '@/components/ListOfDecks.vue'
+import { shallowRef } from 'vue'
+
 const userStore = useUserStore()
+
+const tab = shallowRef('tab-1')
+const tabs = [{ text: 'My Decks', icon: 'mdi-book-multiple', value: 'tab-1' }]
 
 function capitalizedFirstName() {
   const name = userStore.user?.firstName
