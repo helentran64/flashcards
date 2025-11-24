@@ -1,10 +1,10 @@
 <template>
   <v-container>
     <p class="font-weight-bold text-h3 my-4">{{ deckTitle }}</p>
-    <v-btn color="primary" v-if="!startedStudying" @click="toggleStudying" class="mb-4"
+    <v-btn color="green" v-if="!startedStudying" @click="toggleStudying" class="mb-4" prepend-icon="mdi-play"
       >Start Studying</v-btn
     >
-    <v-btn color="red" v-if="startedStudying" @click="toggleStudying" class="mb-4"
+    <v-btn color="red" v-if="startedStudying" @click="toggleStudying" class="mb-4" prepend-icon="mdi-stop"
       >End Session</v-btn
     >
     <div v-show="startedStudying">
