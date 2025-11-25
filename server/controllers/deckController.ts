@@ -42,6 +42,48 @@ const createDeck = async (req: Request, res: Response) => {
 };
 
 /*
+ * Gets all public decks from the database.
+ */
+const getAllPublicDecks = async (req: Request, res: Response) => {
+  try {
+    const data = await db.query("SELECT * FROM deck WHERE privacy = 0");
+    if (data[0].length === 0) {
+      return res.json({ success: false, message: "Public decks not found" });
+    }
+    // Normalize privacy column to a boolean
+    const rows = data[0].map((row: any) => {
+      const privacyVal = row.privacy;
+      let privacyBoolean = false;
+      try {
+        if (Buffer.isBuffer(privacyVal)) {
+          privacyBoolean = privacyVal[0] === 1;
+        } else if (typeof privacyVal === "number") {
+          privacyBoolean = privacyVal === 1;
+        } else {
+          privacyBoolean = !!privacyVal;
+        }
+      } catch (e) {
+        privacyBoolean = !!privacyVal;
+      }
+
+      return {
+        ...row,
+        privacy: privacyBoolean,
+      };
+    });
+
+    return res.json({ success: true, message: "Deck found", data: rows });
+  } catch (error) {
+    console.error("Error fetching deck by privacy:", error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
+/*
  * Gets the decks for a specific user from the database.
  */
 const getDeckByUsername = async (req: Request, res: Response) => {
@@ -78,6 +120,51 @@ const getDeckByUsername = async (req: Request, res: Response) => {
     return res.json({ success: true, message: "Deck found", data: rows });
   } catch (error) {
     console.error("Error fetching deck by username:", error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
+/*
+ * Gets the owner's username of a deck by deckId from the database.
+ */
+const getOwnerByDeckId = async (req: Request, res: Response) => {
+  const deckId = req.params.deckId;
+  try {
+    const data = await db.query("SELECT * FROM deck WHERE deckId = ?", [
+      deckId,
+    ]);
+    if (data[0].length === 0) {
+      return res.json({ success: false, message: "Owner not found" });
+    }
+    // Normalize privacy column to a boolean
+    const rows = data[0].map((row: any) => {
+      const privacyVal = row.privacy;
+      let privacyBoolean = false;
+      try {
+        if (Buffer.isBuffer(privacyVal)) {
+          privacyBoolean = privacyVal[0] === 1;
+        } else if (typeof privacyVal === "number") {
+          privacyBoolean = privacyVal === 1;
+        } else {
+          privacyBoolean = !!privacyVal;
+        }
+      } catch (e) {
+        privacyBoolean = !!privacyVal;
+      }
+
+      return {
+        ...row,
+        privacy: privacyBoolean,
+      };
+    });
+
+    return res.json({ success: true, message: "Deck found", data: rows[0] });
+  } catch (error) {
+    console.error("Error fetching deck by deckId:", error);
     return res.json({
       success: false,
       message: "Internal Server Error",
@@ -167,4 +254,4 @@ const updateDeckById = async (req: Request, res: Response) => {
   }
 };
 
-export { createDeck, getDeckByUsername, deleteDeckById, updateDeckById, getTitleByDeckId };
+export { createDeck, getDeckByUsername, deleteDeckById, updateDeckById, getTitleByDeckId, getAllPublicDecks, getOwnerByDeckId };
