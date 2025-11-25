@@ -22,7 +22,8 @@
         </template>
         <template v-slot:item="{ item }">
           <v-tabs-window-item :value="item.value" class="pa-4">
-            <ListofCards v-if="item.value === 'tab-1'" />
+            <ListOfCards v-if="item.value === 'tab-1'" />
+            <ListOfPublicDecks v-else-if="item.value === 'tab-2'" />
           </v-tabs-window-item>
         </template>
       </v-tabs>
@@ -31,13 +32,17 @@
 </template>
 <script lang="ts" setup>
 import { useUserStore } from '@/stores/userStore'
-import ListofCards from '@/components/ListOfDecks.vue'
+import ListOfCards from '@/components/ListOfDecks.vue'
+import ListOfPublicDecks from '@/components/ListOfPublicDecks.vue'
 import { shallowRef } from 'vue'
 
 const userStore = useUserStore()
 
 const tab = shallowRef('tab-1')
-const tabs = [{ text: 'My Decks', icon: 'mdi-book-multiple', value: 'tab-1' }]
+const tabs = [
+  { text: 'My Decks', icon: 'mdi-book-multiple', value: 'tab-1' },
+  { text: 'Public Decks', icon: 'mdi-earth', value: 'tab-2' },
+]
 
 function capitalizedFirstName() {
   const name = userStore.user?.firstName

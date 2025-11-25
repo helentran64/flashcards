@@ -42,8 +42,16 @@
             :modelValue="flashcard.definition"
             readonly
           />
-          <v-btn icon="mdi-pencil-outline" @click="openEditModal(flashcard)" />
-          <v-btn icon="mdi-trash-can-outline" @click="openDeleteModal(flashcard.flashcardId)" />
+          <v-btn
+            v-if="deckOwner === username"
+            icon="mdi-pencil-outline"
+            @click="openEditModal(flashcard)"
+          />
+          <v-btn
+            v-if="deckOwner === username"
+            icon="mdi-trash-can-outline"
+            @click="openDeleteModal(flashcard.flashcardId)"
+          />
           <DeleteModal
             :isOpen="showDeleteModal"
             @close="showDeleteModal = false"
@@ -52,7 +60,7 @@
         </v-container>
       </v-sheet>
       <!-- Default box to add new card -->
-      <v-sheet elevation="2">
+      <v-sheet elevation="2" v-if="deckOwner === username">
         <v-container>
           <v-text-field label="term" density="compact" variant="outlined" v-model="newTerm" />
           <v-textarea label="definition" density="compact" variant="outlined" v-model="newDef" />
@@ -89,7 +97,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import api from '@/api'
@@ -104,6 +112,8 @@ const newDef = ref<string>('')
 const userStore = useUserStore()
 const flashcards = ref<Array<Flashcard>>([])
 const startedStudying = ref<boolean>(false)
+const username = ref<string>('')
+const deckOwner = ref<string>('')
 
 // Edit modal state
 const editDialog = ref<boolean>(false)
@@ -117,10 +127,22 @@ const flashcardIdToDelete = ref<number | null>(null)
 
 const route = useRoute()
 
-onMounted(() => {
+onMounted(async () => {
   getDeckId()
-  getDeckTitle()
-  getFlashcards()
+  await getDeckTitle()
+  await getFlashcards()
+  // Set username from user store
+  username.value = userStore.user?.username || ''
+  // Set deck owner
+  deckOwner.value = await getDeckOwner()
+})
+
+watch(deckId, async (newVal: number | null) => {
+  if (newVal !== null) {
+    await getDeckTitle()
+    await getFlashcards()
+    deckOwner.value = await getDeckOwner()
+  }
 })
 
 function toggleStudying() {
@@ -152,6 +174,22 @@ async function getDeckTitle() {
   }
 }
 
+async function getDeckOwner() {
+  if (deckId.value === null) return
+  try {
+    const response = await api.get(`/deck/get_username_by_deckId/${deckId.value}`)
+    if (response.data && response.data.success) {
+      return response.data.data.username
+    } else {
+      console.error('Failed to fetch deck owner')
+      return null
+    }
+  } catch (error) {
+    console.error('Error fetching deck owner:', error)
+    return null
+  }
+}
+
 async function addFlashcard() {
   if (deckId.value === null) return
   try {
@@ -159,7 +197,7 @@ async function addFlashcard() {
       term: newTerm.value,
       definition: newDef.value,
       deckId: deckId.value,
-      username: userStore.user?.username,
+      username: username.value,
     })
     if (response.data && response.data.success) {
       getFlashcards()
