@@ -49,7 +49,6 @@ onMounted(async () => {
     const res = await api.get(`/deck/get_all_public_decks`)
     if (res.data && res.data.success) {
       publicDecks.value = res.data.data
-      console.log('Public decks loaded:', publicDecks.value)
     }
   } catch (error) {
     console.error('Error loading public decks:', error)
