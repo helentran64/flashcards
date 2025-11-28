@@ -18,10 +18,13 @@
             </v-card-subtitle>
             <v-card-text>By: {{ deck.username }}</v-card-text>
           </router-link>
+          <v-card-actions v-if="userStore.user?.username !== deck.username">
+            <v-btn icon="mdi-plus" color="green" @click="addToPersonal(deck.title)"></v-btn
+          ></v-card-actions>
         </v-card>
       </v-col>
       <v-col v-if="filteredDecks.length === 0" cols="12" class="text-center">
-        <p class="text-h6 text-grey">No decks found matching "{{ searchedDeck }}"</p>
+        <p class="text-h6 text-grey">No decks found</p>
       </v-col>
     </v-row>
   </v-container>
@@ -31,9 +34,11 @@
 import { ref, computed, onMounted } from 'vue'
 import api from '@/api'
 import type { Deck } from '@/types/types'
+import { useUserStore } from '@/stores/userStore'
 
 const searchedDeck = ref<string>('')
 const publicDecks = ref<Array<Deck>>([])
+const userStore = useUserStore()
 
 const filteredDecks = computed(() => {
   if (!searchedDeck.value) {
@@ -54,4 +59,17 @@ onMounted(async () => {
     console.error('Error loading public decks:', error)
   }
 })
+
+async function addToPersonal(title: string) {
+  try {
+    await api.post('/deck/create', {
+      title: title,
+      isPrivate: true,
+      username: userStore.user?.username,
+      copied: true,
+    })
+  } catch (err) {
+    console.error('Error adding to personal decks', err)
+  }
+}
 </script>

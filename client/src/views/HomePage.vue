@@ -22,7 +22,7 @@
         </template>
         <template v-slot:item="{ item }">
           <v-tabs-window-item :value="item.value" class="pa-4">
-            <ListOfCards v-if="item.value === 'tab-1'" />
+            <ListOfDecks v-if="item.value === 'tab-1'" ref="myDecksRef" />
             <ListOfPublicDecks v-else-if="item.value === 'tab-2'" />
           </v-tabs-window-item>
         </template>
@@ -32,17 +32,26 @@
 </template>
 <script lang="ts" setup>
 import { useUserStore } from '@/stores/userStore'
-import ListOfCards from '@/components/ListOfDecks.vue'
+import ListOfDecks from '@/components/ListOfDecks.vue'
 import ListOfPublicDecks from '@/components/ListOfPublicDecks.vue'
-import { shallowRef } from 'vue'
+import { shallowRef, watch, ref } from 'vue'
 
 const userStore = useUserStore()
 
 const tab = shallowRef('tab-1')
+const myDecksRef = ref<InstanceType<typeof ListOfDecks> | null>(null)
+
 const tabs = [
   { text: 'My Decks', icon: 'mdi-book-multiple', value: 'tab-1' },
   { text: 'Public Decks', icon: 'mdi-earth', value: 'tab-2' },
 ]
+
+// Watch for tab changes and refresh My Decks
+watch(tab, (newTab) => {
+  if (newTab === 'tab-1' && myDecksRef.value) {
+    myDecksRef.value.loadDecks()
+  }
+})
 
 function capitalizedFirstName() {
   const name = userStore.user?.firstName

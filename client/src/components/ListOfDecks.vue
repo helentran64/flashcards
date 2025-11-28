@@ -139,6 +139,7 @@ async function createDeck() {
       title: deckTitle.value,
       isPrivate: isPrivate.value,
       username: userStore.user?.username,
+      copied: false,
     })
     if (res.data && res.data.success) {
       showDeckModal.value = false
@@ -184,6 +185,11 @@ async function confirmDelete() {
     console.error('Error deleting deck:', error)
   }
 }
+
+// Expose loadDecks so parent component can call it
+defineExpose({
+  loadDecks,
+})
 </script>
 
 <style scoped></style>
