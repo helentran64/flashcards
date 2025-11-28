@@ -23,7 +23,12 @@ const router = createRouter({
       path: '/deck/:deckId',
       name: 'view-deck',
       component: () => import('@/views/ViewCurrentDeck.vue'),
-    }
+    },
+    {
+      path: '/all-public-decks',
+      name: 'all-public-decks',
+      component: () => import('@/views/ViewAllDecks.vue'),
+    },
   ],
 })
 

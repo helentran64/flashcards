@@ -8,14 +8,14 @@ import { Request, Response } from "express";
  */
 const createDeck = async (req: Request, res: Response) => {
   try {
-    const { username, title, isPrivate } = req.body;
+    const { username, title, isPrivate, copied } = req.body;
     if (!username || !title || isPrivate === "") {
       return res.json({ success: false, message: "All fields are required" });
     }
     const date = new Date();
     const data = await db.query(
-      "INSERT INTO deck (username, title, privacy, creation) VALUES (?, ?, ?, ?)",
-      [username, title, isPrivate, date]
+      "INSERT INTO deck (username, title, privacy, creation, copied) VALUES (?, ?, ?, ?, ?)",
+      [username, title, isPrivate, date, copied]
     );
     if (!data || data[0].affectedRows === 0) {
       return res.json({ success: false, message: "Failed to create deck" });
@@ -29,10 +29,71 @@ const createDeck = async (req: Request, res: Response) => {
         title,
         isPrivate,
         date,
+        copied,
       },
     });
   } catch (error) {
     console.error("Error creating deck:", error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
+/*
+ * Gets all public decks from the database.
+ */
+const getAllPublicDecks = async (req: Request, res: Response) => {
+  try {
+    const data = await db.query(
+      "SELECT * FROM deck WHERE privacy = 0 AND copied = 0"
+    );
+    if (data[0].length === 0) {
+      return res.json({ success: false, message: "Public decks not found" });
+    }
+    // Normalize privacy and copied columns to booleans
+    const rows = data[0].map((row: any) => {
+      const privacyVal = row.privacy;
+      const copiedVal = row.copied;
+      let privacyBoolean = false;
+      let copiedBoolean = false;
+
+      try {
+        if (Buffer.isBuffer(privacyVal)) {
+          privacyBoolean = privacyVal[0] === 1;
+        } else if (typeof privacyVal === "number") {
+          privacyBoolean = privacyVal === 1;
+        } else {
+          privacyBoolean = !!privacyVal;
+        }
+      } catch (e) {
+        privacyBoolean = !!privacyVal;
+      }
+
+      try {
+        if (Buffer.isBuffer(copiedVal)) {
+          copiedBoolean = copiedVal[0] === 1;
+        } else if (typeof copiedVal === "number") {
+          copiedBoolean = copiedVal === 1;
+        } else {
+          copiedBoolean = !!copiedVal;
+        }
+      } catch (e) {
+        copiedBoolean = !!copiedVal;
+      }
+
+      return {
+        ...row,
+        privacy: privacyBoolean,
+        copied: copiedBoolean,
+      };
+    });
+
+    return res.json({ success: true, message: "Deck found", data: rows });
+  } catch (error) {
+    console.error("Error fetching deck by privacy:", error);
     return res.json({
       success: false,
       message: "Internal Server Error",
@@ -53,10 +114,13 @@ const getDeckByUsername = async (req: Request, res: Response) => {
     if (data[0].length === 0) {
       return res.json({ success: false, message: "Deck not found" });
     }
-    // Normalize privacy column to a boolean
+    // Normalize privacy and copied columns to booleans
     const rows = data[0].map((row: any) => {
       const privacyVal = row.privacy;
+      const copiedVal = row.copied;
       let privacyBoolean = false;
+      let copiedBoolean = false;
+
       try {
         if (Buffer.isBuffer(privacyVal)) {
           privacyBoolean = privacyVal[0] === 1;
@@ -69,9 +133,22 @@ const getDeckByUsername = async (req: Request, res: Response) => {
         privacyBoolean = !!privacyVal;
       }
 
+      try {
+        if (Buffer.isBuffer(copiedVal)) {
+          copiedBoolean = copiedVal[0] === 1;
+        } else if (typeof copiedVal === "number") {
+          copiedBoolean = copiedVal === 1;
+        } else {
+          copiedBoolean = !!copiedVal;
+        }
+      } catch (e) {
+        copiedBoolean = !!copiedVal;
+      }
+
       return {
         ...row,
         privacy: privacyBoolean,
+        copied: copiedBoolean,
       };
     });
 
@@ -86,9 +163,70 @@ const getDeckByUsername = async (req: Request, res: Response) => {
   }
 };
 
-/* 
-* Gets the title of a deck by deckId from the database.
-*/
+/*
+ * Gets the owner's username of a deck by deckId from the database.
+ */
+const getOwnerByDeckId = async (req: Request, res: Response) => {
+  const deckId = req.params.deckId;
+  try {
+    const data = await db.query("SELECT * FROM deck WHERE deckId = ?", [
+      deckId,
+    ]);
+    if (data[0].length === 0) {
+      return res.json({ success: false, message: "Owner not found" });
+    }
+    // Normalize privacy and copied columns to booleans
+    const rows = data[0].map((row: any) => {
+      const privacyVal = row.privacy;
+      const copiedVal = row.copied;
+      let privacyBoolean = false;
+      let copiedBoolean = false;
+
+      try {
+        if (Buffer.isBuffer(privacyVal)) {
+          privacyBoolean = privacyVal[0] === 1;
+        } else if (typeof privacyVal === "number") {
+          privacyBoolean = privacyVal === 1;
+        } else {
+          privacyBoolean = !!privacyVal;
+        }
+      } catch (e) {
+        privacyBoolean = !!privacyVal;
+      }
+
+      try {
+        if (Buffer.isBuffer(copiedVal)) {
+          copiedBoolean = copiedVal[0] === 1;
+        } else if (typeof copiedVal === "number") {
+          copiedBoolean = copiedVal === 1;
+        } else {
+          copiedBoolean = !!copiedVal;
+        }
+      } catch (e) {
+        copiedBoolean = !!copiedVal;
+      }
+
+      return {
+        ...row,
+        privacy: privacyBoolean,
+        copied: copiedBoolean,
+      };
+    });
+
+    return res.json({ success: true, message: "Deck found", data: rows[0] });
+  } catch (error) {
+    console.error("Error fetching deck by deckId:", error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+      error,
+    });
+  }
+};
+
+/*
+ * Gets the title of a deck by deckId from the database.
+ */
 const getTitleByDeckId = async (req: Request, res: Response) => {
   const deckId = req.params.deckId;
   try {
@@ -167,4 +305,12 @@ const updateDeckById = async (req: Request, res: Response) => {
   }
 };
 
-export { createDeck, getDeckByUsername, deleteDeckById, updateDeckById, getTitleByDeckId };
+export {
+  createDeck,
+  getDeckByUsername,
+  deleteDeckById,
+  updateDeckById,
+  getTitleByDeckId,
+  getAllPublicDecks,
+  getOwnerByDeckId,
+};
