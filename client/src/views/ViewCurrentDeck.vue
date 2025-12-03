@@ -64,6 +64,17 @@
         <v-container>
           <v-text-field label="term" density="compact" variant="outlined" v-model="newTerm" />
           <v-textarea label="definition" density="compact" variant="outlined" v-model="newDef" />
+          <v-file-upload
+            v-model="files"
+            clearable
+            density="compact"
+            variant="compact"
+            :multiple="false"
+            title="Upload an image here"
+            class="mb-4"
+            accept="image/png, image/jpeg, image/bmp"
+            @update:model-value="handleFileUpload"
+          />
           <v-btn color="green" @click="addFlashcard">Add Card</v-btn>
         </v-container>
       </v-sheet>
@@ -114,6 +125,7 @@ const flashcards = ref<Array<Flashcard>>([])
 const startedStudying = ref<boolean>(false)
 const username = ref<string>('')
 const deckOwner = ref<string>('')
+const files = ref<File[]>([])
 
 // Edit modal state
 const editDialog = ref<boolean>(false)
@@ -273,6 +285,18 @@ async function deleteFlashcard() {
   } catch (error) {
     console.error('Error deleting flashcard:', error)
   }
+}
+
+const handleFileUpload = (newFiles: File[]) => {
+  if (newFiles && newFiles.length > 0) {
+    const file = newFiles[0]
+    console.log('Selected file:', file)
+    uploadToSupabase(file)
+  }
+}
+
+async function uploadToSupabase(file: File | undefined) {
+  console.log('Not implemented yet for', file)
 }
 </script>
 
