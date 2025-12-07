@@ -33,12 +33,18 @@ import { ref } from 'vue'
 import api from '@/api'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { onKeyStroke } from '@vueuse/core'
 
 const userStore = useUserStore()
 const router = useRouter()
 const loginError = ref(false)
 const username = ref('')
 const password = ref('')
+
+onKeyStroke('Enter', async (e) => {
+  e.preventDefault()
+  await LogUserIn()
+})
 
 async function LogUserIn() {
   try {
@@ -64,7 +70,7 @@ function required(v: string) {
 }
 </script>
 <style scoped>
-.btnCapitalize{
+.btnCapitalize {
   text-transform: capitalize;
 }
 </style>
