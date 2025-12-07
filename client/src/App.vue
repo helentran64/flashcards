@@ -4,7 +4,6 @@ import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
 
-
 function signOut() {
   userStore.logout()
   // Redirect to the home page after signing out
@@ -21,13 +20,25 @@ function signOut() {
             <span class="pl-4 font-weight-bold">myFlashCards</span>
           </RouterLink>
           <span class="navItems">
-            <v-btn color="primary" class="mr-2" v-if="!userStore.isLoggedIn" to="/log-in"
+            <v-btn
+              color="primary"
+              class="mr-2 btnCapitalize"
+              v-if="!userStore.isLoggedIn"
+              to="/log-in"
               >Login</v-btn
             >
-            <v-btn color="primary" class="mr-2" v-if="!userStore.isLoggedIn" to="/sign-up"
+            <v-btn
+              color="primary"
+              class="mr-2 btnCapitalize"
+              v-if="!userStore.isLoggedIn"
+              to="/sign-up"
               >Sign Up</v-btn
             >
-            <v-btn color="primary" class="mr-2" v-if="userStore.isLoggedIn" @click="signOut"
+            <v-btn
+              color="primary"
+              class="mr-2 btnCapitalize"
+              v-if="userStore.isLoggedIn"
+              @click="signOut"
               >Sign Out</v-btn
             >
           </span>
@@ -54,5 +65,8 @@ function signOut() {
 }
 .navItems {
   margin-left: auto;
+}
+.btnCapitalize {
+  text-transform: capitalize;
 }
 </style>
