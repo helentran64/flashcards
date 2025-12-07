@@ -55,6 +55,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import api from '@/api'
+import { onKeyStroke } from '@vueuse/core'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -64,6 +65,11 @@ const email = ref('')
 const username = ref('')
 const password = ref('')
 const errorMessages = ref('')
+
+onKeyStroke('Enter', async (e) => {
+  e.preventDefault()
+  await signup()
+})
 
 async function signup() {
   const user = {
@@ -91,11 +97,16 @@ async function signup() {
             email: user.data.data.email,
           })
           router.push('/')
+        } else {
+          errorMessages.value = 'Unable to sign up'
         }
+      } else {
+        errorMessages.value = 'Unable to sign up'
       }
     }
   } catch (error) {
     console.error('Error checking existing user:', error)
+    errorMessages.value = "Unable to sign up"
   }
 }
 
