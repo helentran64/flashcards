@@ -3,8 +3,8 @@
     <h1 class="font-weight-bold text-h2 my-8">The Ultimate Studying Tool</h1>
     <p class="text-h5">Create, study, and manage your flashcards with ease</p>
     <p class="text-h5">Learn faster with spaced repetition</p>
-    <v-btn color="primary" class="my-8" to="sign-up">Get Started</v-btn>
-    <v-btn variant="outlined" color="primary" to="all-public-decks" class="my-8 mx-2">Find FlashCards</v-btn>
+    <v-btn color="primary" class="my-8 btnCapitalize" to="sign-up">Get Started</v-btn>
+    <v-btn variant="outlined" color="primary" to="all-public-decks" class="my-8 mx-2 btnCapitalize">Find Flashcards</v-btn>
   </div>
   <div v-if="userStore.isLoggedIn">
     <v-container>
@@ -62,5 +62,8 @@ function capitalizedFirstName() {
 .homepageNotSignedIn {
   text-align: center;
   margin-top: 100px;
+}
+.btnCapitalize{
+  text-transform: capitalize;
 }
 </style>

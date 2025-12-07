@@ -5,7 +5,7 @@
       color="green"
       v-if="!startedStudying"
       @click="toggleStudying"
-      class="mb-4"
+      class="mb-4 btnCapitalize"
       prepend-icon="mdi-play"
       >Start Studying</v-btn
     >
@@ -13,7 +13,7 @@
       color="red"
       v-if="startedStudying"
       @click="toggleStudying"
-      class="mb-4"
+      class="mb-4 btnCapitalize"
       prepend-icon="mdi-stop"
       >End Session</v-btn
     >
@@ -64,7 +64,7 @@
         <v-container>
           <v-text-field label="term" density="compact" variant="outlined" v-model="newTerm" />
           <v-textarea label="definition" density="compact" variant="outlined" v-model="newDef" />
-          <v-btn color="green" @click="addFlashcard">Add Card</v-btn>
+          <v-btn color="green" @click="addFlashcard" class="btnCapitalize">Add Card</v-btn>
         </v-container>
       </v-sheet>
 
@@ -276,4 +276,8 @@ async function deleteFlashcard() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.btnCapitalize {
+  text-transform: capitalize;
+}
+</style>
