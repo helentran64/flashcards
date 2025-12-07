@@ -40,7 +40,7 @@
         density="compact"
         v-model="password"
       />
-      <v-btn color="primary" class="mt-4" block @click="signup">Sign Up</v-btn>
+      <v-btn color="primary" class="mt-4 btnCapitalize" block @click="signup">Sign Up</v-btn>
       <div class="my-4">
         <p>
           Already have an account?
@@ -103,3 +103,8 @@ function required(v: string) {
   return !!v || 'Field is required'
 }
 </script>
+<style scoped>
+.btnCapitalize {
+  text-transform: capitalize;
+}
+</style>
